@@ -12,4 +12,4 @@ document.getElementById("add").onclick = function () {
     const lineBreak = document.createElement('br');
     document.getElementById("list").appendChild(lineBreak);
 
-}
+}  
