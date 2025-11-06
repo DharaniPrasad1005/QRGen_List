@@ -27,6 +27,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
         integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
     <script src="js/script.js" defer></script>
     <style>
         #spinner {
@@ -74,7 +75,8 @@
                     <label><input type="checkbox" name="allergens[]" value="Penicillin"> Penicillin</label><br><br>
 
 
-                    <select class="w-full border-2 border-gray-200 rounded p-3 text-grey-dark mr-2 focus:outline-none"
+                    <select
+                        class="w-full border-2 border-gray-200 rounded p-3 text-grey-dark mr-2 focus:outline-none mb-4  "
                         name="size" id="size">
                         <option value="100">100x100</option>
                         <option value="200">200x200</option>
@@ -84,6 +86,9 @@
                         <option value="600">600x600</option>
                         <option value="700">700x700</option>
                     </select>
+                    <label>Create Password of the QR</label>
+                    <input type="password" id="qrpassword" placeholder="Enter Password"
+                        class="w-full border-2 border-gray-200 rounded p-3 text-grey-dark mr-2 focus:outline-none mb-5"></input>
 
                     <button class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black" type="submit">
                         Generate QR Code

@@ -1,6 +1,7 @@
 
 const form = document.getElementById('generate-form');
 const qr = document.getElementById('qrcode');
+let viewUrl = ""
 
 const onGenrateSubmit = (e) => {
     e.preventDefault();
@@ -10,26 +11,42 @@ const onGenrateSubmit = (e) => {
     const dob = document.getElementById('dob').value;
     const selectedAllergies = document.querySelectorAll('input[name="allergens[]"]:checked');
     const allergyList = Array.from(selectedAllergies).map(el => el.value);
-
     const size = document.getElementById('size').value;
-    console.log(size);
+    const password = document.getElementById('qrpassword').value;
 
     const dataInQR = {
-        Name: name,
-        Dob: dob,
-        listOfAllergies: allergyList
+        "Name": name,
+        "Dob": dob,
+        "listOfAllergies": allergyList
     }
+
+    function encryptData(data, password) {
+        return CryptoJS.AES.encrypt(data, password).toString();
+    }
+
+    dataInQRString = JSON.stringify(dataInQR);
+
+    console.log(dataInQRString.length);
+
+
+
+    const encrypted = encryptData(dataInQRString, password);
+    const encoded = encodeURIComponent(encrypted);
+    viewUrl = `${window.location.origin}/view.html?data=${encoded}`;
+
+    console.log(viewUrl);
+
     console.log(dataInQR);
     const dataInQR_json = JSON.stringify(dataInQR);
 
-    if (name === "" || dob === "" || allergyList === "") {
+    if (name === "" || dob === "" || allergyList === "" || password === "") {
         alert('Please enter required details');
     } else {
         showSpinner();
 
         setTimeout(() => {
             hideSpinner();
-            generateQRCode(dataInQR_json, size);
+            generateQRCode(viewUrl, size);
 
             setTimeout(() => {
                 const saveURL = qr.querySelector('img').src;
@@ -40,10 +57,9 @@ const onGenrateSubmit = (e) => {
 
 }
 
-
-const generateQRCode = (dataInQR_json, size) => {
+const generateQRCode = (url, size) => {
     const qrcode = new QRCode('qrcode', {
-        text: dataInQR_json,
+        text: url,
         height: size,
         width: size,
 
