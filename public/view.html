@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Encrypted QR Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        pre {
+            text-align: left;
+            background: #f3f3f3;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🔓 Enter Password to Unlock QR Data</h2>
+    <input id="password" type="password" placeholder="Enter password">
+    <button onclick="decryptData()">Decrypt</button>
+
+    <div id="output" style="margin-top:20px;"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const encrypted = params.get("data");
+
+        if (!encrypted) {
+            document.body.innerHTML = "<p> No encrypted data found in URL.</p>";
+        }
+
+        function decryptData() {
+            const password = document.getElementById("password").value;
+            if (!password) return alert("Please enter a password.");
+
+            try {
+                const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encrypted), password);
+                const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                if (!decrypted) throw new Error();
+
+                const json = JSON.parse(decrypted);
+                document.getElementById("output").innerHTML =
+                    "<h3>Decrypted JSON Data:</h3><pre>" +
+                    JSON.stringify(json, null, 2) +
+                    "</pre>";
+            } catch {
+                document.getElementById("output").innerHTML = "<p style='color:red;'> Invalid password or corrupted QR data.</p>";
+            }
+        }
+    </script>
+</body>
+
+</html>
