@@ -1,8 +1,6 @@
-const { getStore } = require('@netlify/blobs');
 const PDFDocument = require('pdfkit');
 
 exports.handler = async (event, context) => {
-    // Only allow GET requests
     if (event.httpMethod !== 'GET') {
         return {
             statusCode: 405,
@@ -12,41 +10,30 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const id = event.queryStringParameters?.id;
+        const encodedData = event.queryStringParameters?.data;
         
-        if (!id) {
+        if (!encodedData) {
             return {
                 statusCode: 400,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Missing ID parameter' })
-            };
-        }
-        
-        // Retrieve data from Netlify Blobs
-        const store = getStore('allergy-data');
-        const dataString = await store.get(id);
-        
-        if (!dataString) {
-            console.log('Data not found for ID:', id);
-            return {
-                statusCode: 404,
                 headers: { 'Content-Type': 'text/html' },
-                body: `
-                    <!DOCTYPE html>
-                    <html>
-                    <head><title>Not Found</title></head>
-                    <body>
-                        <h1>Allergy Data Not Found</h1>
-                        <p>The requested allergy information could not be found.</p>
-                        <p>ID: ${id}</p>
-                    </body>
-                    </html>
-                `
+                body: '<h1>Error</h1><p>Missing data parameter</p>'
             };
         }
         
-        const data = JSON.parse(dataString);
-        console.log('Retrieved data for ID:', id);
+        // Decode the data from base64
+        let data;
+        try {
+            const jsonString = Buffer.from(encodedData, 'base64').toString('utf-8');
+            data = JSON.parse(jsonString);
+        } catch (decodeError) {
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'text/html' },
+                body: '<h1>Error</h1><p>Invalid data format</p>'
+            };
+        }
+        
+        console.log('Generating PDF for:', data.Name);
 
         // Create PDF in memory
         return new Promise((resolve, reject) => {
@@ -105,10 +92,14 @@ exports.handler = async (event, context) => {
             doc.fontSize(14)
                .fillColor('#000000');
             
-            data.listOfAllergies.forEach((allergy, index) => {
-                doc.text(`${index + 1}. ${allergy}`, { indent: 20 });
-                doc.moveDown(0.4);
-            });
+            if (data.listOfAllergies && data.listOfAllergies.length > 0) {
+                data.listOfAllergies.forEach((allergy, index) => {
+                    doc.text(`${index + 1}. ${allergy}`, { indent: 20 });
+                    doc.moveDown(0.4);
+                });
+            } else {
+                doc.text('None specified', { indent: 20 });
+            }
             
             // Footer
             doc.moveDown(3);
@@ -123,11 +114,17 @@ exports.handler = async (event, context) => {
         console.error('Error generating PDF:', error);
         return {
             statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                error: 'Error generating PDF',
-                message: error.message 
-            })
+            headers: { 'Content-Type': 'text/html' },
+            body: `
+                <!DOCTYPE html>
+                <html>
+                <head><title>Error</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 50px; text-align: center;">
+                    <h1>⚠️ Error Generating PDF</h1>
+                    <p>${error.message}</p>
+                </body>
+                </html>
+            `
         };
     }
 };
