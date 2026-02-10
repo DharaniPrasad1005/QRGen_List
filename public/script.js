@@ -24,25 +24,15 @@ const onGenrateSubmit = (e) => {
     
     showSpinner();
     
-    // Send data to Netlify Function
-    fetch('/.netlify/functions/save-data', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataInQR)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
+    setTimeout(() => {
         hideSpinner();
         
-        // Create URL that points to PDF endpoint
-        const pdfURL = `${window.location.origin}/.netlify/functions/generate-pdf?id=${data.id}`;
+        // Encode data in base64
+        const jsonString = JSON.stringify(dataInQR);
+        const encodedData = btoa(jsonString);
+        
+        // Create URL with encoded data
+        const pdfURL = `${window.location.origin}/.netlify/functions/generate-pdf?data=${encodedData}`;
         
         // Generate QR code with the URL
         generateQRCode(pdfURL, size);
@@ -51,12 +41,7 @@ const onGenrateSubmit = (e) => {
             const saveURL = qr.querySelector('img').src;
             createSaveBtn(saveURL);
         }, 50);
-    })
-    .catch(error => {
-        hideSpinner();
-        alert('Error generating QR code: ' + error.message);
-        console.error(error);
-    });
+    }, 1000);
 }
 
 const generateQRCode = (url, size) => {
