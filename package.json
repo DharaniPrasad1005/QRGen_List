@@ -6,9 +6,10 @@
     "dev": "netlify dev"
   },
   "dependencies": {
-    "pdfkit": "^0.13.0"
+    "pdfkit": "^0.13.0",
+    "@netlify/blobs": "^8.1.0"
   },
   "devDependencies": {
-    "netlify-cli": "^15.0.0"
+    "netlify-cli": "^17.0.0"
   }
 }
