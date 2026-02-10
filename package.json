@@ -1,6 +1,14 @@
 {
+  "name": "allergy-qr-app",
+  "version": "1.0.0",
+  "description": "QR Code Allergy Information App",
+  "scripts": {
+    "dev": "netlify dev"
+  },
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
-    "qrcode": "^1.5.4"
+    "pdfkit": "^0.13.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.0.0"
   }
 }
