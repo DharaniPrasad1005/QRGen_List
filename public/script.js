@@ -4,39 +4,39 @@ const qr = document.getElementById('qrcode');
 const onGenrateSubmit = (e) => {
     e.preventDefault();
     clearUI();
-    
+
     const name = document.getElementById('name').value;
     const dob = document.getElementById('dob').value;
     const selectedAllergies = document.querySelectorAll('input[name="allergens[]"]:checked');
     const allergyList = Array.from(selectedAllergies).map(el => el.value);
     const size = document.getElementById('size').value;
-    
+
     const dataInQR = {
         Name: name,
         Dob: dob,
         listOfAllergies: allergyList
     }
-    
+
     if (name === "" || dob === "" || allergyList.length === 0) {
         alert('Please enter required details');
         return;
     }
-    
+
     showSpinner();
-    
+
     setTimeout(() => {
         hideSpinner();
-        
+
         // Encode data in base64
         const jsonString = JSON.stringify(dataInQR);
         const encodedData = btoa(jsonString);
-        
+
         // Create URL with encoded data
         const pdfURL = `${window.location.origin}/.netlify/functions/generate-pdf?data=${encodedData}`;
-        
+
         // Generate QR code with the URL
         generateQRCode(pdfURL, size);
-        
+
         setTimeout(() => {
             const saveURL = qr.querySelector('img').src;
             createSaveBtn(saveURL);

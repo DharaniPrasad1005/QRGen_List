@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
 
     try {
         const encodedData = event.queryStringParameters?.data;
-        
+
         if (!encodedData) {
             return {
                 statusCode: 400,
@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
                 body: '<h1>Error</h1><p>Missing data parameter</p>'
             };
         }
-        
+
         // Decode the data from base64
         let data;
         try {
@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
                 body: '<h1>Error</h1><p>Invalid data format</p>'
             };
         }
-        
+
         console.log('Generating PDF for:', data.Name);
 
         // Create PDF in memory
@@ -41,7 +41,7 @@ exports.handler = async (event, context) => {
             const chunks = [];
 
             doc.on('data', (chunk) => chunks.push(chunk));
-            
+
             doc.on('end', () => {
                 const pdfBuffer = Buffer.concat(chunks);
                 resolve({
@@ -63,35 +63,35 @@ exports.handler = async (event, context) => {
 
             // Add content to PDF
             doc.fontSize(24)
-               .fillColor('#d32f2f')
-               .text('🚨 Allergy Information', { align: 'center' });
-            
+                .fillColor('#d32f2f')
+                .text('Allergy Information', { align: 'center' });
+
             doc.moveDown(2);
-            
+
             // Name
             doc.fontSize(16)
-               .fillColor('#000000')
-               .text('Name:', { continued: true, underline: true });
+                .fillColor('#000000')
+                .text('Name:', { continued: true, underline: true });
             doc.fontSize(14)
-               .text(` ${data.Name}`, { underline: false });
+                .text(` ${data.Name}`, { underline: false });
             doc.moveDown(0.8);
-            
+
             // Date of Birth
             doc.fontSize(16)
-               .text('Date of Birth:', { continued: true, underline: true });
+                .text('Date of Birth:', { continued: true, underline: true });
             doc.fontSize(14)
-               .text(` ${data.Dob}`, { underline: false });
+                .text(` ${data.Dob}`, { underline: false });
             doc.moveDown(0.8);
-            
+
             // Allergies
             doc.fontSize(16)
-               .fillColor('#d32f2f')
-               .text('Known Allergies:', { underline: true });
+                .fillColor('#d32f2f')
+                .text('Known Allergies:', { underline: true });
             doc.moveDown(0.5);
-            
+
             doc.fontSize(14)
-               .fillColor('#000000');
-            
+                .fillColor('#000000');
+
             if (data.listOfAllergies && data.listOfAllergies.length > 0) {
                 data.listOfAllergies.forEach((allergy, index) => {
                     doc.text(`${index + 1}. ${allergy}`, { indent: 20 });
@@ -100,16 +100,16 @@ exports.handler = async (event, context) => {
             } else {
                 doc.text('None specified', { indent: 20 });
             }
-            
+
             // Footer
             doc.moveDown(3);
             doc.fontSize(10)
-               .fillColor('#666666')
-               .text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'center' });
+                .fillColor('#666666')
+                .text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'center' });
 
             doc.end();
         });
-        
+
     } catch (error) {
         console.error('Error generating PDF:', error);
         return {
